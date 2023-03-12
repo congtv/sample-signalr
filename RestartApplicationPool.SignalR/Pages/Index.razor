@@ -1,0 +1,82 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+<PageTitle>Index</PageTitle>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">No</th>
+            <th scope="col">Action Name</th>
+            <th scope="col">#</th>
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        <tr>
+            <th scope="row">1</th>
+            <td>Restart CMS Application Pool</td>
+            <td>
+                <button @onclick="args => Send(ActionType.RestartApplicationPoolCMS, args)" disabled="@(!IsConnected)">Send</button>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">2</th>
+            <td>Restart Livesite Application Pool</td>
+            <td>
+                <button @onclick="args => Send(ActionType.RestartApplicationPoolLivesite, args)" disabled="@(!IsConnected)">Send</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<hr>
+
+<ul id="messagesList">
+    @foreach (var message in messages)
+    {
+        <li>@message</li>
+    }
+</ul>
+
+@code {
+
+
+    private HubConnection? hubConnection;
+    private List<string> messages = new List<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri(ChatHub.Template))
+            .Build();
+
+        hubConnection.On<string>(nameof(ChatHub.ReturnMessage), (args) =>
+        {
+            messages.Add(args);
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task Send(ActionType actionType, EventArgs args)
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync(nameof(ChatHub.SendMessage), actionType);
+        }
+    }
+
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

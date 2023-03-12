@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\Git\sample-signalr\RestartApplicationPool.SignalR\bin\Release\net6.0\publish\</_PublishTargetUrl>
+    <History>True|2023-03-12T17:59:53.3784425Z;True|2023-03-13T00:52:20.7522298+07:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>
